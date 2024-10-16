@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Romaneiro III</title>
+    <link rel="stylesheet" href="style.css" />
+
+    <!-- CSS do Select2 -->
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.1.0-rc.0/css/select2.min.css"
+      rel="stylesheet"
+    />
+
+    <!-- JS do jQuery -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+
+    <!-- JS do Select2 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.1.0-rc.0/js/select2.min.js"></script>
+
+    <!-- JS do PapaParse -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
+  </head>
+  <body>
+    <header>
+      <img src="/img/less.png" alt="" class="logo" id="LOGO" />
+    </header>
+    <section class="principal">
+      <!--sidebar-->
+
+      <aside>
+        <h1>Clientes Registrados:</h1>
+        <ul id="listaClientes"></ul>
+        <div id="addcltdiv">
+          <button id="addClientBtn" onclick="NewCLT()">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="bi bi-person-plus"
+              viewBox="0 0 16 16"
+              id="addclt"
+            >
+              <path
+                d="M6 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6m2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0m4 8c0 1-1 1-1 1H1s-1 0-1-1 1-4 6-4 6 3 6 4m-1-.004c-.001-.246-.154-.986-.832-1.664C9.516 10.68 8.289 10 6 10s-3.516.68-4.168 1.332c-.678.678-.83 1.418-.832 1.664z"
+              />
+              <path
+                fill-rule="evenodd"
+                d="M13.5 5a.5.5 0 0 1 .5.5V7h1.5a.5.5 0 0 1 0 1H14v1.5a.5.5 0 0 1-1 0V8h-1.5a.5.5 0 0 1 0-1H13V5.5a.5.5 0 0 1 .5-.5"
+              />
+            </svg>
+          </button>
+        </div>
+      </aside>
+
+      <main>
+        <!-- Form/popup -->
+        <div class="FormularioCLT hidden" id="popupForm">
+          <form id="ClientForm">
+            <label for="nome">Nome:</label>
+            <input type="text" id="nome" required /><br />
+
+            <label for="tel">Telefone:</label>
+            <input type="text" id="tel" /><br />
+
+            <label for="vendedora">Vendedora:</label>
+            <input type="text" id="vendedora" /><br />
+
+            <label for="bairro">Bairro:</label>
+            <input type="text" id="bairro" /><br />
+
+            <label for="cidade">Cidade:</label>
+            <input type="text" id="cidade" /><br />
+
+            <label for="uf">UF:</label>
+            <input type="text" id="uf" /><br />
+
+            <button id="editore" class="hidden">Editar</button>
+            <button
+              type="submit"
+              id="salvadore"
+              class="hidden"
+              onclick="Salvear(event)"
+            >
+              Salvar
+            </button>
+            <button type="button" onclick="FechaForm()">Cancelar</button>
+          </form>
+        </div>
+        <!--conteudo principal/Romaneio-->
+
+        <div class="macro hidden">
+          <div class="micro">
+            <!--conteudo fixo = parte do cliente-->
+            <!--castro do cliente nao deveria mudar... ne?-->
+            <table id="fixa">
+              <tr>
+                <th>Cliente:</th>
+                <th>Telefone:</th>
+                <th>Vendedora:</th>
+              </tr>
+              <tr>
+                <td></td>
+                <td></td>
+                <td></td>
+              </tr>
+              <tr>
+                <th>Bairro:</th>
+                <th>Cidade:</th>
+                <th>Estado:</th>
+              </tr>
+              <tr>
+                <td></td>
+                <td></td>
+                <td></td>
+              </tr>
+            </table>
+          </div>
+          <div class="micro">
+            <!--conteudo variavel = preços, e loucuras de clientes-->
+            <!--essa parte sim, vai ficar mudando sempre q cliente quiser-->
+            <table id="variavel1">
+              <tr>
+                <th>Forma de Pagamento:</th>
+                <th>Transportadora</th>
+                <th>Desconto</th>
+                <th>Valor Entrega</th>
+              </tr>
+              <tr>
+                <th>
+                  <select id="pgmnt">
+                    <option value="0">Não Definido</option>
+                    <option value="1">Depósito</option>
+                    <option value="2">Dinheiro</option>
+                    <option value="3">Pix</option>
+                    <option value="4">Débito</option>
+                    <option value="5">Credito</option>
+                  </select>
+                </th>
+                <th>
+                  <select id="transp">
+                    <option value="0">Não Definido</option>
+                    <option value="1">Correio Sedex</option>
+                    <option value="2">Correio Pac</option>
+                    <option value="3">Motoboy</option>
+                    <option value="4">Retirada no Local</option>
+                  </select>
+                </th>
+                <th><input type="number" id="desconto" /></th>
+                <th><input type="number" id="PagTrans" /></th>
+              </tr>
+            </table>
+            <!--agora é a parte que é complicada de verdade-->
+            <!--montagem do pedido, peças e preços... MEDO-->
+            <table id="variavel2">
+              <tr>
+                <th>Qntd</th>
+                <th>Descrição</th>
+                <th>Unid</th>
+                <th>Total</th>
+                <th></th>
+              </tr>
+            </table>
+          </div>
+          <!--fim do romaneio, informaçõe finais-->
+          <!--matematica e fé vai gritar aqui-->
+          <div id="nano">
+            <table id="nanotb">
+              <tr>
+                <td>
+                  <h2>Itens Totais:</h2>
+                </td>
+                <td id="TdUnidade"></td>
+                <td><h2>77 un</h2></td>
+                <td>
+                  <h2>Preço Total:</h2>
+                </td>
+                <td id="TdPreco"><h2>R$7777,77</h2></td>
+              </tr>
+            </table>
+          </div>
+        </div>
+        <select
+          name="PecasSelecionadas[]"
+          id="pecaselect"
+          class="hidden"
+          multiple="multiple"
+        ></select>
+        <button class="hidden" id="addpeca" onclick="SelectPronto()">
+          Adicionar Peça
+        </button>
+        <div id="wawawa"></div>
+      </main>
+    </section>
+
+    <footer>
+      <!--eu.-->
+      <p>Feito por Rafael Venturini</p>
+      <button onclick="WaWaWa()">debug1</button>
+      <button onclick="wewewe()">debug2</button>
+      <button onclick="Clear()">debug3</button>
+    </footer>
+    <script src="romaneiro.js"></script>
+  </body>
+</html>

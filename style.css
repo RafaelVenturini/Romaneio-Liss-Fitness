@@ -1,0 +1,363 @@
+:root {
+    --cor-primaria: #DECCAD;
+    --cor-secundaria: #64114f;
+    --cor-terciaria: #580f46;
+    --cor-quaternaria: #470d39;
+    --boa: #008000;
+    --ruim: #ff0000;
+}
+
+body {
+    margin: 0; 
+    font-family: Arial, sans-serif; 
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+header, footer {
+    background-color: var(--cor-secundaria);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 4rem;
+    color: #fff;
+}
+footer{
+    position: relative;
+    bottom: 0px;
+    width: 100%;
+}
+
+header .logo {
+    width: 8rem;
+}
+
+.principal {
+    display: grid;
+    grid-template-columns: 15rem 1fr;
+    height: calc(100vh - 8rem); 
+    flex: 1;
+}
+
+aside {
+    background-color: var(--cor-terciaria);
+    padding: 15px; 
+    color: #fff;
+    height: 100%;
+    overflow-y: auto; 
+    display: grid;
+    grid-template-columns: 1fr;
+}
+aside #cliente{
+    display: grid;
+    grid-template-columns: 80% 10% 10%;
+}
+
+aside li:nth-child(1){
+    background-color: var(--cor-quaternaria);
+}
+
+aside a{
+    color: #fff;
+    margin: 0;
+    padding: 0;
+}
+
+aside h1 {
+    margin: 0; 
+}
+
+aside button {
+    background: none;
+    border: none;
+}
+
+aside button svg {
+    height: 3rem;
+    fill: #fff;
+}
+
+main {
+    background-color: var(--cor-primaria);
+    padding: 15px;
+    height: 100%;
+    overflow-y: auto; 
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.macro, .micro {
+    border-radius: 8px;
+    border: 2px solid var(--cor-secundaria);
+    margin-bottom: 10px; 
+}
+.macro{
+    display: grid;
+    grid-template-columns: auto;
+    background-color: #e0d6c4;
+    padding: 2px;
+    width: 45rem;
+    align-items: center;
+    justify-content: center;
+}
+.micro{
+    background-color: #fff;
+    padding: 15px;
+}
+
+table {
+    width: 100%; 
+    border-collapse: collapse; 
+}
+
+table, th, td {
+    border: 1px solid black;
+}
+
+th, td {
+    text-align: left; 
+}
+
+input {
+    width: 100%; 
+    box-sizing: border-box; 
+}
+
+#fixa th:nth-child(1),
+#fixa th:nth-child(1)
+{
+    width:15rem ;    
+}
+#fixa th:nth-child(2),
+#fixa th:nth-child(2)
+{
+    width:15rem ;    
+}
+#fixa th:nth-child(3),
+#fixa th:nth-child(3)
+{
+    width:15rem ;    
+}
+
+#nano {
+    height: 2rem;
+    align-items: center;
+    padding: 0 1rem;
+}
+#nanotb {
+    border: hidden;
+}
+#nanotb td{
+    border: 2px;
+}
+
+#nanotb :nth-child(even){
+    justify-content: right;
+}
+#nanotb :nth-child(odd){
+    justify-content: left;
+}
+
+#nanotb :nth-child(3){
+    width: 53%;
+}
+
+#nano h2{
+    font-size: 1rem;
+}
+
+#nano h2:first-child {
+    justify-self: start; 
+    margin-right: 0.5rem;
+}
+
+#nano h2:nth-child(2),
+#nano input {
+    justify-self: center; 
+}
+
+#nano h2:last-child {
+    justify-self: end; 
+    margin-left: 0.5rem;
+}
+
+/* atributos tabela variavel de cima */
+
+#variavel1 th:nth-child(1)
+{
+    width:30% ;    
+}
+#variavel1 th:nth-child(2)
+{
+    width:30% ;    
+}
+#variavel1 th:nth-child(3)
+{
+    width:15% ;    
+}
+
+#variavel1 #transp, #variavel1 #pgmnt{
+    width: 100%;
+}
+
+/* atributos tabela variavel de baixo */
+
+#variavel2 th:nth-child(1)
+{
+    width: 10% ;    
+}
+
+#variavel2 th:nth-child(3)
+{
+    width:12% ;    
+}
+#variavel2 th:nth-child(4)
+{
+    width:12% ;    
+}
+#variavel2 th:nth-child(5)
+{
+    width: 40px;
+}
+.TrApaga{
+    width: 40px;
+}
+
+
+#botaoDentroDaTabela
+{
+    width: 5%;
+}
+table #del{
+    background-color: var(--ruim);
+    fill: #fff;
+}
+table svg{
+    height: 22px;
+    width: 22px;
+    display: flex;
+    align-items: center;
+    border-radius: 50%;
+}
+button{
+    background: none;
+    border: none;
+    cursor: pointer;
+}
+li svg{
+    cursor: pointer;
+}
+#addcltbtn{
+    width: 4rem;
+    height: 4rem;
+}
+
+#addcltdiv{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.hidden{
+    display: none !important;
+}
+
+#formclt{
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+}
+
+/* Estilos básicos para o popup */
+.FormularioCLT {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: #fff;
+    padding: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    z-index: 10;
+    border: var(--cor-secundaria) 2px solid;
+    border-radius: 10%;
+}
+.FormularioCLT.active {
+    display: block;
+}
+.sidebar {
+    width: 200px;
+    float: left;
+    background-color: #f8f8f8;
+    padding: 10px;
+}
+.content {
+    margin-left: 220px;
+    padding: 10px;
+}
+.btn {
+    cursor: pointer;
+    padding: 10px 15px;
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+}
+main{
+    display: grid;
+    grid-template-columns: 1fr;
+    align-items: center;
+    justify-content: center;
+}
+.macro{
+    margin-left: 10rem;
+}
+#addpeca{
+    background-color: var(--boa);
+    width: 15%;
+    height: 2rem;
+    border: solid black 2px;
+    border-radius: 1rem;
+    color: white;
+    margin-left: 29rem;
+    margin-bottom: 1rem;
+}
+
+/* Estilo do contêiner principal */
+.select2-container {
+    width: 58vw !important;
+    border: 1px solid #ccc;
+    padding-left: 20rem;
+}
+
+/* Estilo da área de seleção */
+.select2-selection {
+    background-color: #f4f4f4;
+    border: 1px solid #888;
+    height: 10px;
+}
+
+/* Estilo do texto renderizado */
+.select2-selection__rendered {
+    color: #333;
+    padding: 10px;
+}
+
+/* Estilo da seta do select */
+.select2-selection__arrow {
+    border-left: 1px solid #888;
+    height: 40px;
+    width: 30px;
+}
+
+/* Estilo da lista suspensa */
+.select2-dropdown {
+    background-color: #fff;
+    border: 1px solid #888;
+    margin-left: 23.5vw;
+}
+
+.DescTd p{
+    font-size: 1rem;
+    margin: 2px;
+}
