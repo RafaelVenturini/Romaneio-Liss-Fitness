@@ -7,7 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
     SideFill()
 })
 
-let IndexClienteSelect
+let IndexAtualCliente = -1
 let Listagem = JSON.parse(localStorage.getItem('clientes')) || [];
 let Cliente = {};
 let ContadorSelect = 0
@@ -35,7 +35,7 @@ function Salvear(event){
     const bairro = document.getElementById('bairro').value;
     const cidade = document.getElementById('cidade').value;
     const uf = document.getElementById('uf').value;
-    Cliente = {nome, tel, vendedora, bairro, cidade, uf, pagamento: 0, transp: 0, entrega: 0, desconto: 0, pedido: [quantidade = 0, peça = 0]};
+    Cliente = {nome, tel, vendedora, bairro, cidade, uf, pagamento: 0, transp: 0, entrega: 0, desconto: 0, pedido: [quantidade = 0, peça = 0], conjuntos: 0};
 
     Listagem.push(Cliente);
 
@@ -292,41 +292,66 @@ function SelectPronto(){
     $('#wawawa').text('n select: '+ val);
     ContadorSelect = val;
     $('#pecaselect').val(null).trigger('change');
-    criadorTR();
+    criadorTR(Cliente);
 }
 
+
 function criadorTR(){
+    const Dados = Listagem[IndexAtualCliente]
     let i = 0
     const n = ContadorSelect
     const tabela = document.getElementById("variavel2")
+    let ContaDindin = 0
+    let ValorCompleto = 0
+    let UnidadeTotal = 0 
     
     while (i < n){
         const NewLinha = tabela.insertRow(-1)
         NewLinha.id = `tr_${i}`
         NewLinha.className = 'TrClass'
 
+        
         // Cria o input de Qntd
         const numero = NewLinha.insertCell(0)
         const numerovalue = document.createElement("input")
         numerovalue.type = "number"
         numero.appendChild(numerovalue)
+        console.log(numerovalue)
         numero.id = `num_${i}`
         numero.className = 'NumeroTd'
+        numerovalue.className = 'NumeroIn'
+
 
         // Cria a Coluna do Produto Selecionado
         const descricion = NewLinha.insertCell(1)
         const descricionvalue = document.createElement("p")
         descricionvalue.innerHTML = TextoSelect[i]
         descricion.appendChild(descricionvalue)
+        console.log(descricionvalue)
         descricion.id = `des_${i}`
         descricion.className = 'DescTd'
 
 
         // Cria a Coluna de Valor de cada peça
+        let valorunico = 0
         const unidade = NewLinha.insertCell(2)
-        const unidadevalue = document.createElement("p")   
-        unidadepreco = EncontrarPreco(descricion)
-        unidade.appendChild(unidadepreco)
+        let unidadevalue = document.createElement("p")
+        if (Cliente.pagamento < 4)
+        {
+            valorunico = EncontrarPreco(descricionvalue)
+            unidadevalue.innerHTML = `R$ ${valorunico},00`
+            unidade.appendChild(unidadevalue)
+            console.log(unidadevalue)
+        }
+
+        else 
+        {
+            let valorunico = parseFloat((EncontrarPreco(descricionvalue) * 1.1).toFixed(2))
+            unidadevalue.innerHTML = `R$ ${valorunico}`
+            unidade.appendChild(unidadevalue)
+            console.log(unidadevalue)
+        }
+
         unidade.id = `un_${i}`
         unidade.className = 'UnTd'
 
@@ -334,8 +359,22 @@ function criadorTR(){
         // Cria a Coluna de Total
         const totales = NewLinha.insertCell(3)
         const totalesvalue = document.createElement("p")
+        const IdentNumb = document.getElementById(`num_${i}`)
         totales.id = `tot_${i}`
         totales.className = 'TotTd'
+        IdentNumb.addEventListener('change', (event) => {
+            
+            const qntd = event.target.value
+            UnidadeTotal = UnidadeTotal + qntd
+            console.log(qntd)
+            
+            valortotal = valorunico * qntd
+            ContaDindin = ContaDindin + valortotal
+            totalesvalue.innerHTML = `R$ ${parseFloat(valortotal.toFixed(2))}` 
+            totales.appendChild(totalesvalue)
+            console.log(valortotal)
+        })
+
 
         // Cria o icone de Apagar a Linha
         const apaga = NewLinha.insertCell(4)
@@ -361,18 +400,43 @@ function criadorTR(){
 
         apaga.id = `apg_${i}`
         apaga.className = `ApgTd`
+        DeleteLine = document.getElementById(`tr_${i}`) 
+        
+        apagavalue.onclick = function(){
+            DeleteLine.innerHTML = ''
+        }
 
         i++
+        console.log('numero de produto',i)
     }
+    Dados.conjuntos = Dados.conjuntos + i
+    localStorage.setItem('clientes', JSON.stringify(Listagem));
+
+    ValorCompleto = ((ContaDindin + Dados.entrega) - Dados.desconto)
+    document.getElementById('TdPreco').textContent = `R$ ${ValorCompleto}`  
+    
+    const unidades = document.querySelectorAll('.NumeroIn')
+    unidades.forEach(input => {
+        input.addEventListener('change', (event) => {
+            document.getElementById('TdUnidade').textContent = ''
+            document.getElementById('TdUnidade').textContent = `${UnidadeTotal} un`
+            console.log(event)
+        })
+    })
+
 }
 
+
 function EncontrarPreco(pecinha){
-    const peca = ListaDoCsv.find(item => item.DESC === pecinha.innerHTML);
+    const descrição = pecinha.innerHTML
+    const peca = ListaDoCsv.find(item => item.DESC == descrição);
     if (peca){
+        console.log('a peça custa: ',peca.PRECO)
         return peca.PRECO
     }
     else{
-        return null
+        console.log('a peca nao foi encontrada')
+        return peca.PRECO
     }
 }
 
