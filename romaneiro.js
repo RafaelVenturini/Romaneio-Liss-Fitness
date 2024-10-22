@@ -3,7 +3,7 @@
 //abriu o site, vai mandar o classico e vai preencher a tabela lateral
 document.addEventListener('DOMContentLoaded', () => {
     console.log("Haro World!")
-    JSONando('Testei.CSV')
+    JSONando('produtos.CSV')
     SideFill()
 })
 
@@ -35,7 +35,7 @@ function Salvear(event){
     const bairro = document.getElementById('bairro').value;
     const cidade = document.getElementById('cidade').value;
     const uf = document.getElementById('uf').value;
-    Cliente = {nome, tel, vendedora, bairro, cidade, uf, pagamento: 0, transp: 0, entrega: 0, desconto: 0, pedido: [quantidade = 0, peça = 0], conjuntos: 0};
+    Cliente = {nome, tel, vendedora, bairro, cidade, uf, pagamento: 0, transp: 0, entrega: 0, desconto: 0, pedido: [{quantidade: 0, peça: 0}], conjuntos: 0};
 
     Listagem.push(Cliente);
 
@@ -90,7 +90,8 @@ ElementoPgmnt.addEventListener('change', (event) => {
     const PgmntValor = event.target.value;
     Listagem[IndexAtualCliente]['pagamento'] = PgmntValor;
     localStorage.setItem('clientes', JSON.stringify(Listagem));
-    console.log(PgmntValor) 
+    console.log(PgmntValor)
+    criadorTR(Listagem[IndexAtualCliente])
 })
 
 ElementoTransp.addEventListener('change', (event) => {
@@ -98,6 +99,7 @@ ElementoTransp.addEventListener('change', (event) => {
     Listagem[IndexAtualCliente]['transp'] = TranspValor;
     localStorage.setItem('clientes', JSON.stringify(Listagem));
     console.log(TranspValor)
+    criadorTR(Listagem[IndexAtualCliente])
 })
 
 ElementoPagTrans.addEventListener('change', (event) => {
@@ -105,21 +107,18 @@ ElementoPagTrans.addEventListener('change', (event) => {
     Listagem[IndexAtualCliente]['entrega'] = PagTransValor;
     localStorage.setItem('clientes', JSON.stringify(Listagem));
     console.log(PagTransValor)
+    criadorTR(Listagem[IndexAtualCliente])
 })
 
 ElementoDesc.addEventListener('change', (event) => {
     const DescValor = event.target.value;
     Listagem[IndexAtualCliente]['desconto'] = DescValor;
     localStorage.setItem('clientes', JSON.stringify(Listagem));
-    console.log(DescValor) 
+    console.log(DescValor)
+    criadorTR(Listagem[IndexAtualCliente])
 })
 
 
-
-
-////////////////////////////////////////////////////////////////////////////////////
-//                   funções pra ser usadas em todo o codigo                      //
-////////////////////////////////////////////////////////////////////////////////////
 const bigquadro = document.getElementsByClassName('macro')[0]
 const BtnPeça = document.getElementById('addpeca')
 const PecaBusca = document.getElementById('pecaselect')
@@ -130,10 +129,9 @@ function MacroShow(){
     document.getElementById("popupForm").classList.add("hidden");
     BtnPeça.classList.remove('hidden')
     PecaBusca.classList.remove('hidden')
-    ContadorSelect = 0
-    PecasSelect = 0
     console.log('tome macro');
 }
+
 
 // Faz desaparecer a tabela do Cliente
 function MacroHide(){
@@ -143,14 +141,17 @@ function MacroHide(){
     console.log('macro apagado');
 }
 
+
 // Fecha o formulario para adicionar ou editar Cliente
 function FechaForm(){
     document.getElementById("popupForm").classList.add("hidden");
     console.log("Form fechado")
 }
 
+
 // Faz a Tabela do Cliente ser Preechida com os dados do mesmo
 function FixaShow(cliente) {
+    console.log('Mostrando dados de: ',cliente)
     const fixa = document.querySelectorAll('#fixa tr');
     fixa[1].cells[0].textContent = cliente.nome || '';
     fixa[1].cells[1].textContent = cliente.tel || '';
@@ -165,16 +166,13 @@ function FixaShow(cliente) {
     const select3 = document.getElementById('PagTrans');
     const select4 = document.getElementById('desconto');
 
-    console.log("Valor de pagamento:",  cliente.pagamento);
-    console.log("Valor de transporte:", cliente.transp);
-    console.log("Valor de entrega:",    cliente.entrega);
-    console.log("Valor de desconto:",   cliente.desconto);
-
     select1.value = cliente.pagamento || '0';
     select2.value = cliente.transp || '0';
     select3.value = cliente.entrega || '0';
     select4.value = cliente.desconto || '0';
 
+    SelectPronto(cliente);
+    criadorTR(cliente);
     MacroShow();
 }
 
@@ -281,25 +279,41 @@ function JSONando(csv){
 
 }
 
-function SelectPronto(){
-    const dados = $('#pecaselect').val();
-    const texto = $('#pecaselect').find(':selected').map(function(){
-        return $(this).text()
-    }).get()
-    TextoSelect = texto
-    PecasSelect = dados;
-    const val = dados ? dados.length : 0;
-    $('#wawawa').text('n select: '+ val);
-    ContadorSelect = val;
-    $('#pecaselect').val(null).trigger('change');
-    criadorTR(Cliente);
+
+
+
+
+function SelectPronto(cliente){
+    const SelectBotao = document.getElementById('addpeca')
+    SelectBotao.addEventListener('click', () =>{
+        const dados = $('#pecaselect').val();
+        const texto = $('#pecaselect').find(':selected').map(function(){
+            return $(this).text();
+        }).get();
+        TextoSelect = texto;
+        PecasSelect = dados;
+        const val = dados ? dados.length : 0;
+        console.log(val)
+        Listagem[IndexAtualCliente]['conjuntos'] = val;
+        localStorage.setItem('clientes', JSON.stringify(Listagem));
+        $('#pecaselect').val(null).trigger('change');
+
+        i = Listagem[IndexAtualCliente]['conjuntos']
+        console.log(i)
+        while (i < val) {
+            Listagem[IndexAtualCliente]['pedidos'][i].push({quantidade: 1, peça: PecasSelect[i]})
+            console.log('Adicionado as peças:',PecasSelect[i] )
+            i++
+        }
+
+        criadorTR(cliente)
+    }) 
 }
 
 
-function criadorTR(){
-    const Dados = Listagem[IndexAtualCliente]
+function criadorTR(cliente){
     let i = 0
-    const n = ContadorSelect
+    const n = cliente.conjuntos
     const tabela = document.getElementById("variavel2")
     let ContaDindin = 0
     let ValorCompleto = 0
@@ -316,7 +330,6 @@ function criadorTR(){
         const numerovalue = document.createElement("input")
         numerovalue.type = "number"
         numero.appendChild(numerovalue)
-        console.log(numerovalue)
         numero.id = `num_${i}`
         numero.className = 'NumeroTd'
         numerovalue.className = 'NumeroIn'
@@ -327,7 +340,6 @@ function criadorTR(){
         const descricionvalue = document.createElement("p")
         descricionvalue.innerHTML = TextoSelect[i]
         descricion.appendChild(descricionvalue)
-        console.log(descricionvalue)
         descricion.id = `des_${i}`
         descricion.className = 'DescTd'
 
@@ -336,20 +348,19 @@ function criadorTR(){
         let valorunico = 0
         const unidade = NewLinha.insertCell(2)
         let unidadevalue = document.createElement("p")
-        if (Cliente.pagamento < 4)
+    
+        if (cliente.pagamento < 4)
         {
             valorunico = EncontrarPreco(descricionvalue)
             unidadevalue.innerHTML = `R$ ${valorunico},00`
             unidade.appendChild(unidadevalue)
-            console.log(unidadevalue)
         }
 
         else 
         {
-            let valorunico = parseFloat((EncontrarPreco(descricionvalue) * 1.1).toFixed(2))
+            valorunico = (EncontrarPreco(descricionvalue) * 1.1).toFixed(2)
             unidadevalue.innerHTML = `R$ ${valorunico}`
             unidade.appendChild(unidadevalue)
-            console.log(unidadevalue)
         }
 
         unidade.id = `un_${i}`
@@ -360,19 +371,15 @@ function criadorTR(){
         const totales = NewLinha.insertCell(3)
         const totalesvalue = document.createElement("p")
         const IdentNumb = document.getElementById(`num_${i}`)
-        totales.id = `tot_${i}`
-        totales.className = 'TotTd'
+        
         IdentNumb.addEventListener('change', (event) => {
-            
             const qntd = event.target.value
             UnidadeTotal = UnidadeTotal + qntd
-            console.log(qntd)
-            
             valortotal = valorunico * qntd
+
             ContaDindin = ContaDindin + valortotal
-            totalesvalue.innerHTML = `R$ ${parseFloat(valortotal.toFixed(2))}` 
+            totalesvalue.innerHTML = `R$ ${valortotal.toFixed(2)}` 
             totales.appendChild(totalesvalue)
-            console.log(valortotal)
         })
 
 
@@ -407,23 +414,22 @@ function criadorTR(){
         }
 
         i++
-        console.log('numero de produto',i)
     }
-    Dados.conjuntos = Dados.conjuntos + i
+    cliente.conjuntos = cliente.conjuntos + i
     localStorage.setItem('clientes', JSON.stringify(Listagem));
 
-    ValorCompleto = ((ContaDindin + Dados.entrega) - Dados.desconto)
+    ValorCompleto = ((ContaDindin + cliente.entrega) - cliente.desconto)
     document.getElementById('TdPreco').textContent = `R$ ${ValorCompleto}`  
     
+    /*
     const unidades = document.querySelectorAll('.NumeroIn')
     unidades.forEach(input => {
         input.addEventListener('change', (event) => {
             document.getElementById('TdUnidade').textContent = ''
             document.getElementById('TdUnidade').textContent = `${UnidadeTotal} un`
-            console.log(event)
         })
     })
-
+    */
 }
 
 
