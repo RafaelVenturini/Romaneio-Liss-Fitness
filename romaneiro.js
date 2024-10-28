@@ -90,7 +90,6 @@ ElementoPgmnt.addEventListener('change', (event) => {
     const PgmntValor = event.target.value;
     Listagem[IndexAtualCliente]['pagamento'] = PgmntValor;
     localStorage.setItem('clientes', JSON.stringify(Listagem));
-    console.log(PgmntValor)
     criadorTR(Listagem[IndexAtualCliente])
 })
 
@@ -98,7 +97,6 @@ ElementoTransp.addEventListener('change', (event) => {
     const TranspValor = event.target.value;
     Listagem[IndexAtualCliente]['transp'] = TranspValor;
     localStorage.setItem('clientes', JSON.stringify(Listagem));
-    console.log(TranspValor)
     criadorTR(Listagem[IndexAtualCliente])
 })
 
@@ -106,7 +104,6 @@ ElementoPagTrans.addEventListener('change', (event) => {
     const PagTransValor = event.target.value;
     Listagem[IndexAtualCliente]['entrega'] = PagTransValor;
     localStorage.setItem('clientes', JSON.stringify(Listagem));
-    console.log(PagTransValor)
     criadorTR(Listagem[IndexAtualCliente])
 })
 
@@ -114,7 +111,6 @@ ElementoDesc.addEventListener('change', (event) => {
     const DescValor = event.target.value;
     Listagem[IndexAtualCliente]['desconto'] = DescValor;
     localStorage.setItem('clientes', JSON.stringify(Listagem));
-    console.log(DescValor)
     criadorTR(Listagem[IndexAtualCliente])
 })
 
@@ -151,7 +147,6 @@ function FechaForm(){
 
 // Faz a Tabela do Cliente ser Preechida com os dados do mesmo
 function FixaShow(cliente) {
-    console.log('Mostrando dados de: ',cliente)
     const fixa = document.querySelectorAll('#fixa tr');
     fixa[1].cells[0].textContent = cliente.nome || '';
     fixa[1].cells[1].textContent = cliente.tel || '';
@@ -171,10 +166,10 @@ function FixaShow(cliente) {
     select3.value = cliente.entrega || '0';
     select4.value = cliente.desconto || '0';
 
-    SelectPronto(cliente);
-    criadorTR(cliente);
+    
     MacroShow();
 }
+
 
 // Faz aparecer os <a> na tabela central
 function ShowA(cliente, clienteLink){
@@ -184,8 +179,6 @@ function ShowA(cliente, clienteLink){
         const index = e.target.getAttribute('data-index');
         FixaShow(cliente);
         IndexAtualCliente = index;
-        
-        console.log('index cliente: ',IndexAtualCliente)
     });
 }
 
@@ -280,9 +273,6 @@ function JSONando(csv){
 }
 
 
-
-
-
 function SelectPronto(cliente){
     const SelectBotao = document.getElementById('addpeca')
     SelectBotao.addEventListener('click', () =>{
@@ -306,145 +296,187 @@ function SelectPronto(cliente){
             i++
         }
 
-        criadorTR(cliente)
+        criadorTR(cliente, val, TextoSelect)
     }) 
 }
 
 
-function criadorTR(cliente){
-    let i = 0
-    const n = cliente.conjuntos
+function criadorTR(cliente, QuantidadeAdicionada, TextoSelect){
+    console.log(TextoSelect)
+    let i = cliente.conjuntos
+    const n = cliente.conjuntos + QuantidadeAdicionada
+    console.log('novo:', QuantidadeAdicionada)
     const tabela = document.getElementById("variavel2")
     let ContaDindin = 0
     let ValorCompleto = 0
     let UnidadeTotal = 0 
     
+    // Criação de tabela do romaneio
+    // Parte mais importante do programa
+    
     while (i < n){
+        
         const NewLinha = tabela.insertRow(-1)
         NewLinha.id = `tr_${i}`
         NewLinha.className = 'TrClass'
-
         
-        // Cria o input de Qntd
-        const numero = NewLinha.insertCell(0)
-        const numerovalue = document.createElement("input")
-        numerovalue.type = "number"
-        numero.appendChild(numerovalue)
-        numero.id = `num_${i}`
-        numero.className = 'NumeroTd'
-        numerovalue.className = 'NumeroIn'
+        TRInput(NewLinha, i)
+        descricionvalue = TRProduto(NewLinha, TextoSelect, i)
+        valorunico = TRValorUn(NewLinha, cliente, i)
+        TRTotal(NewLinha, UnidadeTotal, valorunico, i)
+        TRDelete(cliente, NewLinha, i)
+        
+        i++
+        cliente.conjuntos++
+    }
 
-
-        // Cria a Coluna do Produto Selecionado
-        const descricion = NewLinha.insertCell(1)
-        const descricionvalue = document.createElement("p")
-        descricionvalue.innerHTML = TextoSelect[i]
-        descricion.appendChild(descricionvalue)
-        descricion.id = `des_${i}`
-        descricion.className = 'DescTd'
-
-
-        // Cria a Coluna de Valor de cada peça
-        let valorunico = 0
-        const unidade = NewLinha.insertCell(2)
-        let unidadevalue = document.createElement("p")
+    console.log('conjuntos:', cliente.conjuntos)
+    localStorage.setItem('clientes', JSON.stringify(Listagem));
     
-        if (cliente.pagamento < 4)
+    ValorCompleto = ((ContaDindin + cliente.entrega) - cliente.desconto)
+    document.getElementById('TdPreco').textContent = `R$ ${ValorCompleto}`
+}
+
+/*
+function TRCreate(tabela){
+    const NewLinha = tabela.insertRow(-1)
+    NewLinha.id = `tr_${i}`
+    NewLinha.className = 'TrClass'
+}
+*/
+
+
+function TRInput(NewLinha, i){
+    // Cria o input de Qntd
+    const numero = NewLinha.insertCell(0)
+    const numerovalue = document.createElement("input")
+    numerovalue.type = "number"
+    numero.appendChild(numerovalue)
+    numero.id = `num_${i}`
+    numero.className = 'NumeroTd'
+    numerovalue.className = 'NumeroIn'
+}
+
+
+function TRProduto(NewLinha, TextoSelect, i){
+    // Cria a Coluna do Produto Selecionado
+    const descricion = NewLinha.insertCell(1)
+    const descricionvalue = document.createElement("p")
+    descricionvalue.innerHTML = TextoSelect[i]
+    descricion.appendChild(descricionvalue)
+    descricion.className = 'DescTd'
+
+    return descricionvalue
+}
+
+
+function TRValorUn(NewLinha, cliente, i){
+    // Cria a Coluna de Valor de cada peça
+    let valorunico = 0
+    const unidade = NewLinha.insertCell(2)
+    let unidadevalue = document.createElement("p")
+    console.log('cliente pagou com: ',cliente.pagamento)
+    
+    if (cliente.pagamento < 3)
         {
+            console.log('valor sem acrescimo')
             valorunico = EncontrarPreco(descricionvalue)
             unidadevalue.innerHTML = `R$ ${valorunico},00`
             unidade.appendChild(unidadevalue)
         }
-
+        
         else 
         {
+            console.log('valor com acrescimo')
             valorunico = (EncontrarPreco(descricionvalue) * 1.1).toFixed(2)
             unidadevalue.innerHTML = `R$ ${valorunico}`
             unidade.appendChild(unidadevalue)
         }
-
-        unidade.id = `un_${i}`
-        unidade.className = 'UnTd'
-
-
-        // Cria a Coluna de Total
-        const totales = NewLinha.insertCell(3)
-        const totalesvalue = document.createElement("p")
-        const IdentNumb = document.getElementById(`num_${i}`)
         
-        IdentNumb.addEventListener('change', (event) => {
-            const qntd = event.target.value
-            UnidadeTotal = UnidadeTotal + qntd
-            valortotal = valorunico * qntd
-
-            ContaDindin = ContaDindin + valortotal
-            totalesvalue.innerHTML = `R$ ${valortotal.toFixed(2)}` 
-            totales.appendChild(totalesvalue)
-        })
-
-
-        // Cria o icone de Apagar a Linha
-        const apaga = NewLinha.insertCell(4)
-        const apagavalue = document.createElement("button")
-        const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-        svg.setAttribute("id", "del");
-        svg.setAttribute("width", "16");
-        svg.setAttribute("height", "16");
-        svg.setAttribute("fill", "currentColor");
-        svg.setAttribute("class", "bi bi-x-circle");
-        svg.setAttribute("viewBox", "0 0 16 16");
-
-        const path1 = document.createElementNS("http://www.w3.org/2000/svg", "path");
-        path1.setAttribute("d", "M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16");
-        svg.appendChild(path1);
-
-        const path2 = document.createElementNS("http://www.w3.org/2000/svg", "path");
-        path2.setAttribute("d", "M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708");
-        svg.appendChild(path2);
-
-        apagavalue.appendChild(svg);
-        apaga.appendChild(apagavalue);
-
-        apaga.id = `apg_${i}`
-        apaga.className = `ApgTd`
-        DeleteLine = document.getElementById(`tr_${i}`) 
-        
-        apagavalue.onclick = function(){
-            DeleteLine.innerHTML = ''
-        }
-
-        i++
-    }
-    cliente.conjuntos = cliente.conjuntos + i
-    localStorage.setItem('clientes', JSON.stringify(Listagem));
-
-    ValorCompleto = ((ContaDindin + cliente.entrega) - cliente.desconto)
-    document.getElementById('TdPreco').textContent = `R$ ${ValorCompleto}`  
-    
-    /*
-    const unidades = document.querySelectorAll('.NumeroIn')
-    unidades.forEach(input => {
-        input.addEventListener('change', (event) => {
-            document.getElementById('TdUnidade').textContent = ''
-            document.getElementById('TdUnidade').textContent = `${UnidadeTotal} un`
-        })
-    })
-    */
+    unidade.id = `un_${i}`
+    unidade.className = 'UnTd'
+    return valorunico
 }
+
+
+function TRTotal(NewLinha, UnidadeTotal, valorunico, i){
+    // Cria a Coluna de Total
+    const totales = NewLinha.insertCell(3)
+    const totalesvalue = document.createElement("p")
+    const IdentNumb = document.getElementById(`num_${i}`)
+    let ContaDindin = 0
+    
+    IdentNumb.addEventListener('change', (event) => {
+    const qntd = event.target.value
+    UnidadeTotal = UnidadeTotal + qntd
+    valortotal = valorunico * qntd
+    
+    ContaDindin = ContaDindin + valortotal
+    totalesvalue.innerHTML = `R$ ${valortotal.toFixed(2)}` 
+    totales.appendChild(totalesvalue)
+    })
+}
+
+
+function TRDelete(cliente, NewLinha, i){
+    // Cria o icone de Apagar a Linha
+    const apaga = NewLinha.insertCell(4)
+    const apagavalue = document.createElement("button")
+    const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    svg.setAttribute("id", "del");
+    svg.setAttribute("width", "16");
+    svg.setAttribute("height", "16");
+    svg.setAttribute("fill", "currentColor");
+    svg.setAttribute("class", "bi bi-x-circle");
+    svg.setAttribute("viewBox", "0 0 16 16");
+
+    const path1 = document.createElementNS("http://www.w3.org/2000/svg", "path");
+    path1.setAttribute("d", "M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16");
+    svg.appendChild(path1);
+
+    const path2 = document.createElementNS("http://www.w3.org/2000/svg", "path");
+    path2.setAttribute("d", "M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708");
+    svg.appendChild(path2);
+
+    apagavalue.appendChild(svg);
+    apaga.appendChild(apagavalue);
+
+    apaga.id = `apg_${i}`
+    apaga.className = `ApgTd`
+    const LinhaDel = document.getElementById(`tr_${i}`) 
+
+    apagavalue.onclick = function(){
+        LinhaDel.innerHTML = ''
+    }
+
+    cliente.conjuntos = cliente.conjuntos - 1
+}   
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 function EncontrarPreco(pecinha){
     const descrição = pecinha.innerHTML
     const peca = ListaDoCsv.find(item => item.DESC == descrição);
     if (peca){
-        console.log('a peça custa: ',peca.PRECO)
-        return peca.PRECO
-    }
-    else{
-        console.log('a peca nao foi encontrada')
         return peca.PRECO
     }
 }
+
+
+
 
 ////////////////////////////////////////////////////////////////////////////////////
 //                                 Debug Area                                     //
@@ -452,8 +484,12 @@ function EncontrarPreco(pecinha){
 
 function Clear(){
     localStorage.clear(Listagem)
+    localStorage.setItem('Listagem', JSON.stringify(Listagem));
+
     console.log('Todos os Clientes foram Apagados')
     console.log('lista dos arrays atualis:', Listagem)
+    SideFill()
+    location.reload()
 }
 
 function WaWaWa(){
