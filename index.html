@@ -74,7 +74,12 @@
             <input type="text" id="uf" /><br />
 
             <button id="editore" class="hidden">Editar</button>
-            <button id="salvadore" class="hidden" onclick="Salvear(event)">
+            <button
+              type="submit"
+              id="salvadore"
+              class="hidden"
+              onclick="Salvear(event)"
+            >
               Salvar
             </button>
             <button type="button" onclick="FechaForm()">Cancelar</button>
@@ -110,8 +115,6 @@
             </table>
           </div>
           <div class="micro">
-            <!--conteudo variavel = preços, e loucuras de clientes-->
-            <!--essa parte sim, vai ficar mudando sempre q cliente quiser-->
             <table id="variavel1">
               <tr>
                 <th>Forma de Pagamento:</th>
@@ -143,8 +146,7 @@
                 <th><input type="number" id="PagTrans" /></th>
               </tr>
             </table>
-            <!--agora é a parte que é complicada de verdade-->
-            <!--montagem do pedido, peças e preços... MEDO-->
+
             <table id="variavel2">
               <tr>
                 <th>Qntd</th>
@@ -155,20 +157,19 @@
               </tr>
             </table>
           </div>
-          <!--fim do romaneio, informaçõe finais-->
-          <!--matematica e fé vai gritar aqui-->
+
           <div id="nano">
             <table id="nanotb">
               <tr>
-                <td>
+                <td class="nanotd">
                   <h2>Itens Totais:</h2>
                 </td>
-                <td id="TdUnidade"><h2></h2></td>
-                <td></td>
-                <td>
+                <td id="TdUnidade" class="nanotd"><h2></h2></td>
+                <td class="nanotd"></td>
+                <td class="nanotd">
                   <h2>Preço Total:</h2>
                 </td>
-                <td id="TdPreco"><h2></h2></td>
+                <td id="TdPreco" class="nanotd"><h2></h2></td>
               </tr>
             </table>
           </div>
@@ -186,9 +187,6 @@
     <footer>
       <!--eu.-->
       <p>Feito por Rafael Venturini</p>
-      <button onclick="WaWaWa()">debug1</button>
-      <button onclick="wewewe()">debug2</button>
-      <button onclick="Clear()">debug3</button>
     </footer>
     <script src="romaneiro.js"></script>
   </body>

@@ -5,6 +5,8 @@ document.addEventListener('DOMContentLoaded', () => {
     console.log("Haro World!")
     JSONando('produtos.CSV')
     SideFill()
+    console.log('lista dos arrays atualis:', Listagem)
+
 })
 
 let IndexAtualCliente = -1
@@ -24,6 +26,16 @@ function NewCLT(){
     ClientForm.reset();
 }
 
+
+const ClientForm = document.getElementById('ClientForm');
+
+// Adiciona um evento 'keydown' para verificar a tecla Enter
+ClientForm.addEventListener('keydown', (event) => {
+    if (event.key === "Enter") {
+        event.preventDefault(); 
+        Salvear(event); 
+    }})
+
 // Salvar o cadastro dos clientes
 function Salvear(event){
     event.preventDefault();
@@ -40,13 +52,11 @@ function Salvear(event){
 
     // cria um armazenador "clientes"  com os dados do Listagem
     localStorage.setItem('clientes', JSON.stringify(Listagem));
-
-    console.log('Array Unico:',Cliente);
-    console.log('Lista Dos Arrays: ',Listagem);
     
     FechaForm()
     SideFill()
 }
+
 
 const SideBar = document.getElementById('listaClientes')
 let editingIndex = -1;
@@ -61,7 +71,7 @@ function SideFill(){
     Clientes.forEach((cliente,index) => {
         const clienteLink = document.createElement('li')
         clienteLink.innerHTML = `
-        <a href="#" data-index="${index}">${cliente.nome}</a>
+        <a href="#" data-index="${index}" class="CLTS">${cliente.nome}</a>
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-circle" viewBox="0 0 16 16" id="del" > 
             <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16" />
             <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708" />
@@ -78,6 +88,7 @@ function SideFill(){
         EditarA(Clientes, clienteLink);
     });
 };
+
 
 // Adição de forma de pagamento, meio de transporte, e valor do pagamento e desconto (respectivamente)
 const ElementoPgmnt = document.getElementById('pgmnt')
@@ -165,14 +176,15 @@ function FixaShow(cliente) {
     const select3 = document.getElementById('PagTrans');
     const select4 = document.getElementById('desconto');
 
-    select1.value = cliente.pagamento || '0';
-    select2.value = cliente.transp || '0';
-    select3.value = cliente.entrega || '0';
-    select4.value = cliente.desconto || '0';
+    select1.value = Listagem[IndexAtualCliente].pagamento;
+    select2.value = Listagem[IndexAtualCliente].transp;
+    select3.value = Listagem[IndexAtualCliente].entrega;
+    select4.value = Listagem[IndexAtualCliente].desconto;
 
     
     MacroShow();
-    SelectPronto(cliente);
+    SelectPronto();
+    RecriadorTR();
 }
 
 
@@ -181,6 +193,13 @@ function ShowA(cliente, clienteLink){
     const LinkCliente = clienteLink.querySelector('a');
     LinkCliente.addEventListener('click', (e) =>{
         e.preventDefault();
+        previo = document.querySelectorAll('.ClienteSelecionado')
+        previo.forEach(previo => {
+            previo.classList.remove('ClienteSelecionado');
+        });
+        
+
+
         const index = e.target.getAttribute('data-index');
         const tabela = document.getElementById("variavel2")
         tabela.innerHTML = `
@@ -194,10 +213,12 @@ function ShowA(cliente, clienteLink){
             </tr>
         </table>
         `
-        FixaShow(cliente);
         IndexAtualCliente = index;
+        FixaShow(cliente);
+        e.target.classList.add("ClienteSelecionado")
     });
 }
+
 
 // Some com o Array do Cliente e seu respectivo <a>
 function DelA(Clientes, clienteLink){
@@ -209,6 +230,7 @@ function DelA(Clientes, clienteLink){
         SideFill();
     });
 }
+
 
 // Edita os Dados do Cliente
 function EditarA(Clientes,clienteLink){
@@ -230,7 +252,6 @@ function EditarA(Clientes,clienteLink){
             MacroHide();
             document.getElementById("editore").classList.remove("hidden");
             editingIndex = index;
-            console.log('Index a ser Editado:', editingIndex)
             const SubmitEditore = document.getElementById('editore');
             SubmitEditore.addEventListener('click', () => {
 
@@ -248,6 +269,7 @@ function EditarA(Clientes,clienteLink){
         };
     });
 };
+
 
 // "liga" o select2
 $(document).ready(function() {
@@ -272,7 +294,6 @@ function JSONando(csv){
             skipEmptyLines: true
         });
         ListaDoCsv = resultado.data
-        console.log('Lista do CSV:',ListaDoCsv)
 
         const ProdutoLista = resultado.data.map(item => ({
             id: item.id,
@@ -282,14 +303,13 @@ function JSONando(csv){
         $('#pecaselect').select2({
             data:ProdutoLista
         })
-        console.log('Listagem de produtos: ', ProdutoLista)
     })
     .catch(erro => console.error('Erro ao carregar o CSV:', erro));
 
 }
 
 
-function SelectPronto(cliente){
+function SelectPronto(){
     const SelectBotao = document.getElementById('addpeca')
     SelectBotao.addEventListener('click', () =>{
         const dados = $('#pecaselect').val();
@@ -302,69 +322,49 @@ function SelectPronto(cliente){
         $('#pecaselect').val(null).trigger('change');
         
         i = Listagem[IndexAtualCliente].pedido.length
-        const n = val + i
 
-        console.log('pedido ponto lengfi: ',Listagem[IndexAtualCliente].pedido.length)
-        console.log('conjuntos do individuo: ',i)
-        while (i < n) {
-            const Pecinhas = {quantidade: 1, peca: PecasSelect[i]}
-            Listagem[IndexAtualCliente].pedido.push(Pecinhas)
-            console.log('Adicionado as peças:',PecasSelect[i] )
-            console.log('Adicionado a pecinha:', Pecinhas )
-            localStorage.setItem('Listagem', JSON.stringify(Listagem));
-            i++
-        }
-        console.log('pedido do individuo: ', Listagem[IndexAtualCliente].pedido)
-        console.log('val: ', val)
-        criadorTR(cliente, val, TextoSelect)
+        criadorTR(val, TextoSelect)
         Contagem()
     }) 
 }
 
 
-function criadorTR(cliente, QuantidadeAdicionada, TextoSelect){
-    console.log(TextoSelect)
-    let i = cliente.pedido.length
+function criadorTR(QuantidadeAdicionada, TextoSelect){
+    let i = 0
     const n = i + QuantidadeAdicionada
     const tabela = document.getElementById("variavel2")
     
     // Criação de tabela do romaneio
     // Parte mais importante do programa
-    
     while (i < n){
         const NewLinha = tabela.insertRow(-1)
-        NewLinha.id = `tr_${i}`
         NewLinha.className = 'TrClass'
         
-        TRInput(NewLinha, i)
+        TRInput(NewLinha)
         descricionvalue = TRProduto(NewLinha, TextoSelect, i)
-        valorunico = TRValorUn(NewLinha, cliente, i)
-        TRTotal(NewLinha, valorunico, i)
-        TRDelete(NewLinha, i)
+        valorunico = TRValorUn(NewLinha)
+        TRTotal(NewLinha, valorunico)
+        TRDelete(NewLinha)
         
         i++
     }
 
-    console.log('conjuntos:', cliente.pedido.length)
-    localStorage.setItem('cliente', JSON.stringify(Listagem));
-    
-
+    localStorage.setItem('Listagem', JSON.stringify(Listagem));
 }
 
 
 // Cria o input de Qntd
-function TRInput(NewLinha, i){
+function TRInput(NewLinha){
     const numero = NewLinha.insertCell(0)
     const numerovalue = document.createElement("input")
     numerovalue.type = "number"
     numero.appendChild(numerovalue)
-    numero.id = `num_${i}`
-    numerovalue.id = `numV_${i}`
     numero.className = 'NumeroTd'
     numerovalue.className = 'NumeroIn'
     numerovalue.value = 1
 
     numerovalue.addEventListener('change', function(){
+        MudancaQntd()
         MudancaTotal()
     })
 }
@@ -376,21 +376,24 @@ function TRProduto(NewLinha, TextoSelect, i){
     const descricionvalue = document.createElement("p")
     descricionvalue.innerHTML = TextoSelect[i]
     descricion.appendChild(descricionvalue)
-    descricion.className = 'DescTd'
-    descricionvalue.id = `DescV_${i}`
+
+    const Pecinhas = {quantidade: 1, peca: TextoSelect[i]}
+    Listagem[IndexAtualCliente].pedido.push(Pecinhas)
+    console.log(`Adicionado ${TextoSelect[i]} no cliente`)
+    localStorage.setItem('Listagem', JSON.stringify(Listagem));
 
     return descricionvalue
 }
 
 
 // Cria a Coluna de Valor de cada peça
-function TRValorUn(NewLinha, cliente, i){
+function TRValorUn(NewLinha){
     let valorunico = 0
     const unidade = NewLinha.insertCell(2)
     let unidadevalue = document.createElement("p")
     unidade.appendChild(unidadevalue)
 
-    if (cliente.pagamento < 3){
+    if (Listagem[IndexAtualCliente].pagamento < 3){
         valorunico = EncontrarPreco(descricionvalue)
         unidadevalue.innerHTML = `R$ ${valorunico}`
         unidade.appendChild(unidadevalue)
@@ -402,17 +405,15 @@ function TRValorUn(NewLinha, cliente, i){
         unidade.appendChild(unidadevalue)
     }
 
-    unidade.id = `un_${i}`
     unidade.className = 'UnTd'
     return valorunico
 }
 
 
 // Cria a Coluna de Total
-function TRTotal(NewLinha, valorunico, i){
+function TRTotal(NewLinha, valorunico){
     const totales = NewLinha.insertCell(3)
     const totalesvalue = document.createElement("p")
-    totales.id = `Total_${i}`
 
     totalesvalue.innerHTML = `R$ ${valorunico}` 
     totales.appendChild(totalesvalue)
@@ -420,7 +421,7 @@ function TRTotal(NewLinha, valorunico, i){
 
 
 // Cria o icone de Apagar a Linha
-function TRDelete(NewLinha, i){
+function TRDelete(NewLinha){
     const apaga = NewLinha.insertCell(4)
     const apagavalue = document.createElement("button")
     const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
@@ -442,7 +443,6 @@ function TRDelete(NewLinha, i){
     apagavalue.appendChild(svg);
     apaga.appendChild(apagavalue);
 
-    apaga.id = `apg_${i}`
     apaga.className = `ApgTd`
     const tabela = document.getElementById("variavel2")
 
@@ -459,6 +459,7 @@ function TRDelete(NewLinha, i){
 
 }   
 
+
 function ContadorPeço(tabela){
     const ColunaPreco = 3
     let total = 0
@@ -470,15 +471,56 @@ function ContadorPeço(tabela){
 }
 
 
+function RecriadorTR(){
+    let i = 0
+    const n = Listagem[IndexAtualCliente].pedido.length
+    console.log('n ', n)
+
+    const tabela = document.getElementById("variavel2")
+    
+    // Criação de tabela do romaneio
+    // Parte mais importante do programa
+    while (i < n){
+        const NewLinha = tabela.insertRow(-1)
+        NewLinha.className = 'TrClass'
+        
+        RTRInput(NewLinha, i)
+        descricionvalue = RTRProduto(NewLinha, i)
+        valorunico = TRValorUn(NewLinha)
+        TRTotal(NewLinha, valorunico)
+        TRDelete(NewLinha)
+        
+        i++
+    }
+    MudancaTotal()
+}
 
 
+function RTRInput(NewLinha, i,){
+    const numero = NewLinha.insertCell(0)
+    const numerovalue = document.createElement("input")
+    numerovalue.type = "number"
+    numero.appendChild(numerovalue)
+    numero.className = 'NumeroTd'
+    numerovalue.className = 'NumeroIn'
+    numerovalue.value = Listagem[IndexAtualCliente].pedido[i].quantidade
+
+    numerovalue.addEventListener('change', function(){
+        MudancaTotal()
+        MudancaQntd()
+    })
+}
 
 
+function RTRProduto(NewLinha, i){
+    const descricion = NewLinha.insertCell(1)
+    const descricionvalue = document.createElement("p")
 
+    descricionvalue.innerHTML = Listagem[IndexAtualCliente].pedido[i].peca
+    descricion.appendChild(descricionvalue)
 
-
-
-
+    return descricionvalue
+}
 
 
 function EncontrarPreco(pecinha){
@@ -495,6 +537,7 @@ function MudancaTotal(){
     const ColunaUnidade = 2
     const ColunaQntd = 0
     const tabela = document.getElementById("variavel2")
+    
 
     for(let i = 1; i < tabela.rows.length; i++){
         let SlotTotal = tabela.rows[i].cells[ColunaTotal]
@@ -502,17 +545,18 @@ function MudancaTotal(){
         let unid = tabela.rows[i].cells[ColunaUnidade].innerText;
         
         let QntdValue = qntd.querySelector("input").value
-        let UnidValue = (parseFloat(unid.replace('R$ ',''))).toFixed(2)
+        let UnidValue = unid.replace('R$ ','')
         
-        let NewTotal = (UnidValue * QntdValue).toFixed(2)
+        let NewTotal = (parseFloat(UnidValue * QntdValue)).toFixed(2)
         SlotTotal.innerHTML = `R$ ${NewTotal}`
     }
+    
     Contagem()
 }
 
 function Contagem(){
     let QuantidadeTotal = 0
-    let PrecoTotal = 0
+    let PrecoTotal = 0.0
     const tabela = document.getElementById("variavel2")
     const PrecoSlot = document.getElementById('TdPreco')
     const UnidadeSlot = document.getElementById('TdUnidade')
@@ -524,24 +568,23 @@ function Contagem(){
         let preco = (parseFloat(precotxt.innerText.replace('R$ ',''))).toFixed(2)
         
         QuantidadeTotal += ~~qntd.querySelector("input").value
-        PrecoTotal += ~~preco
+        PrecoTotal += parseFloat(preco)
     }
     
-    let ValorCompleto = (PrecoTotal + (~~Listagem[IndexAtualCliente].entrega) - Listagem[IndexAtualCliente].desconto)
+    let ValorCompleto = parseFloat(PrecoTotal + (~~Listagem[IndexAtualCliente].entrega) - Listagem[IndexAtualCliente].desconto).toFixed(2)
     PrecoSlot.textContent = `R$ ${ValorCompleto}`
     UnidadeSlot.textContent = `${QuantidadeTotal} un`
 }
 
-function MudancaPagamento(tabela, pagamento, cliente){
+function MudancaPagamento(tabela, pagamento){
     const ColunaUnidade = 2
     const ColunaDesc = 1
 
     // cliente pagando sem cartao anteriormente
-    if(cliente.acrescimo == false){
+    if(Listagem[IndexAtualCliente].acrescimo == false){
 
         if(pagamento == 0){
-            console.log('O cliente nao recebe acrescimo 00')
-            cliente.acrescimo = false
+            Listagem[IndexAtualCliente].acrescimo = false
         }
         
         else if(pagamento > 3){
@@ -550,18 +593,15 @@ function MudancaPagamento(tabela, pagamento, cliente){
                     let unidade = tabela.rows[i].cells[ColunaUnidade];
 
                     let NewNumero = (parseFloat(unidade.innerText.replace('R$ ','')) * 1.1).toFixed(2)
-                    console.log('un ',unidade)
-                    console.log('nn ',NewNumero)
+
                     
                     unidade.innerHTML = `R$ ${NewNumero}`
                 }
-                cliente.acrescimo = true
+                Listagem[IndexAtualCliente].acrescimo = true
                 localStorage.setItem('clientes', JSON.stringify(Listagem));
-                console.log('o cliente recebeu o acrescimo 1')
             }
         else{
-            console.log('O cliente nao recebe acrescimo 2')
-            cliente.acrescimo = false
+            Listagem[IndexAtualCliente].acrescimo = false
         }
     }
     
@@ -569,8 +609,7 @@ function MudancaPagamento(tabela, pagamento, cliente){
     else{
         
         if(pagamento == 0){
-            console.log('O cliente nao perde acrescimo 0')
-            cliente.acrescimo = true
+            Listagem[IndexAtualCliente].acrescimo = true
         }
         
         if(pagamento < 4){
@@ -586,23 +625,34 @@ function MudancaPagamento(tabela, pagamento, cliente){
                 }
 
             }
-            cliente.acrescimo = false
+            Listagem[IndexAtualCliente].acrescimo = false
             localStorage.setItem('clientes', JSON.stringify(Listagem));
-            console.log('O cliente perde o acrescimo 3')
         }
         
         else{
-            console.log('O cliente nao perde acrescimo 4')
-            cliente.acrescimo = true
+            Listagem[IndexAtualCliente].acrescimo = true
         }
     }
 }
 
+function MudancaQntd(){
+    const tabela = document.getElementById("variavel2")
+    const ColunaQntd = 0
+
+    console.log('cliente', Listagem[IndexAtualCliente])
+    for(let i = 1; i < tabela.rows.length; i++){
+        let qntd = tabela.rows[i].cells[ColunaQntd]
+        let QntdValue = qntd.querySelector("input").value
+
+        Listagem[IndexAtualCliente].pedido[i-1].quantidade = QntdValue
+    }
+}
 
 ////////////////////////////////////////////////////////////////////////////////////
 //                                 Debug Area                                     //
 ////////////////////////////////////////////////////////////////////////////////////
 
+/*
 function Clear(){
     localStorage.clear(Listagem)
     localStorage.setItem('Listagem', JSON.stringify(Listagem));
@@ -618,3 +668,4 @@ function wewewe(){
 function WaWaWa(){
     console.log('lista dos arrays atualis:', Listagem)
 }
+*/
