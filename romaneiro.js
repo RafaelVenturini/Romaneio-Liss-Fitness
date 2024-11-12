@@ -4,7 +4,11 @@
 document.addEventListener('DOMContentLoaded', () => {
     console.log("Haro World!")
     JSONando('./produtos.CSV')
-    console.log('produtos:', JSONando('produtos.CSV'))
+
+    console.log('produtos1:', JSONando('./produtos.CSV'))
+    console.log('produtos2:', JSONando('/produtos.CSV'))
+    console.log('produtos3:', JSONando('.produtos.CSV'))
+    console.log('produtos4:', JSONando('produtos.CSV'))
     SideFill()
     console.log('lista dos arrays atualis:', Listagem)
 
