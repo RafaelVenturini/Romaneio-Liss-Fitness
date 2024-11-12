@@ -236,7 +236,7 @@ input {
 {
     width: 5%;
 }
-table #del{
+table #DeletaLinha{
     background-color: var(--ruim);
     fill: #fff;
 }
@@ -325,9 +325,9 @@ main{
     border: solid black 2px;
     border-radius: 1rem;
     color: white;
-    margin-left: 29rem;
     margin-bottom: 1rem;
 }
+
 
 /* Estilo do contêiner principal */
 .select2-container {
@@ -340,7 +340,6 @@ main{
 .select2-selection {
     background-color: #f4f4f4;
     border: 1px solid #888;
-    height: 10px;
 }
 
 /* Estilo do texto renderizado */
@@ -366,4 +365,25 @@ main{
 .TrClass p{
     font-size: 1rem;
     margin: 2px;
+}
+
+#botoes{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#print{
+    margin-right: 2rem;
+    margin-bottom: 1rem;
+}
+
+#impressao{
+    margin-left: 2rem;
+    margin-bottom: 1rem;
+}
+
+.printando{
+    background-color: white !important;
+    border: 2px solid white !important;
 }

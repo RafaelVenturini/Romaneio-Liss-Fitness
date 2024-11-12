@@ -23,6 +23,8 @@ function NewCLT(){
     document.getElementById("salvadore").classList.remove("hidden");
     document.getElementById('editore').classList.add("hidden");
     document.getElementById('addpeca').classList.add("hidden");
+    document.getElementById('print').classList.add("hidden");
+    document.getElementById('impressao').classList.add("hidden");
     ClientForm.reset();
 }
 
@@ -135,6 +137,8 @@ ElementoDesc.addEventListener('change', (event) => {
 
 const bigquadro = document.getElementsByClassName('macro')[0]
 const BtnPeça = document.getElementById('addpeca')
+const BtnPrint = document.getElementById('print')
+const BtnInprint = document.getElementById('impressao')
 const PecaBusca = document.getElementById('pecaselect')
 
 // Faz aparecer a tabela do Cliente
@@ -142,6 +146,8 @@ function MacroShow(){
     bigquadro.classList.remove('hidden');
     document.getElementById("popupForm").classList.add("hidden");
     BtnPeça.classList.remove('hidden')
+    BtnPrint.classList.remove('hidden')
+    BtnInprint.classList.remove('hidden')
     PecaBusca.classList.remove('hidden')
 }
 
@@ -444,6 +450,7 @@ function TRDelete(NewLinha){
     apaga.appendChild(apagavalue);
 
     apaga.className = `ApgTd`
+    svg.id = 'DeletaLinha'
     const tabela = document.getElementById("variavel2")
 
 
@@ -554,6 +561,7 @@ function MudancaTotal(){
     Contagem()
 }
 
+
 function Contagem(){
     let QuantidadeTotal = 0
     let PrecoTotal = 0.0
@@ -575,6 +583,7 @@ function Contagem(){
     PrecoSlot.textContent = `R$ ${ValorCompleto}`
     UnidadeSlot.textContent = `${QuantidadeTotal} un`
 }
+
 
 function MudancaPagamento(tabela, pagamento){
     const ColunaUnidade = 2
@@ -635,6 +644,7 @@ function MudancaPagamento(tabela, pagamento){
     }
 }
 
+
 function MudancaQntd(){
     const tabela = document.getElementById("variavel2")
     const ColunaQntd = 0
@@ -648,17 +658,91 @@ function MudancaQntd(){
     }
 }
 
+
+function PrintMacro() {
+    const elemento = document.querySelector(".macro");
+
+    html2canvas(elemento).then(canvas => {
+        canvas.toBlob(blob => {
+            const item = new ClipboardItem({ "image/png": blob });
+
+            navigator.clipboard.write([item]).then(() => {
+                alert("Imagem copiada!");
+            }).catch(err => {
+                console.error("Erro ao copiar a imagem:", err);
+            });
+        }, "image/png");
+    });
+}
+
+
+async function PDFzador(){
+    const elemento = document.querySelector(".macro");
+    const fixa = document.querySelector('#fixa')
+    const micro = document.querySelectorAll('.micro')
+    const del = document.querySelectorAll("#DeletaLinha")
+
+    elemento.classList.add('printando');
+    fixa.classList.add('printando')
+    del.forEach(item => {
+        item.classList.add('hidden');
+    });
+    micro.forEach(item => {
+        item.classList.add('printando');
+    });
+
+    const canvas = await html2canvas(elemento);
+    const imgData = canvas.toDataURL("image/png");
+
+    const { jsPDF } = window.jspdf;
+    const pdf = new jsPDF();
+
+    const pageHeight = 1091; // Limite da altura da página
+    const totalHeight = canvas.height; // Altura total da imagem
+    
+    // Verifica se a altura da imagem cabe em uma página
+    if (totalHeight <= pageHeight) {
+        pdf.addImage(imgData, 'PNG', 10, 3);
+    } else {
+        const totalPages = Math.ceil(totalHeight / pageHeight); // Total de páginas
+
+        for (let currentPage = 0; currentPage < totalPages; currentPage++) {
+            // Captura a parte visível da página
+            const pageCanvas = await html2canvas(elemento, {
+                x: 0,
+                y: currentPage * pageHeight, // Deslocamento vertical para capturar a parte correta
+                width: elemento.clientWidth,
+                height: pageHeight
+            });
+            const pageImgData = pageCanvas.toDataURL("image/png");
+
+            if (currentPage > 0) pdf.addPage(); // Adiciona nova página para cada iteração, exceto a primeira
+            pdf.addImage(pageImgData, 'PNG', 10, 10);
+        }
+    };
+    pdf.autoPrint();
+    window.open(pdf.output('bloburl'), '_blank');     
+    /*
+    fixa.classList.remove('printando')
+    micro.classList.remove('printando')
+    elemento.classList.remove('printando')
+    del.forEach(item => {
+        item.classList.remove('hidden');
+    });
+    */
+}
+
 ////////////////////////////////////////////////////////////////////////////////////
 //                                 Debug Area                                     //
 ////////////////////////////////////////////////////////////////////////////////////
 
-/*
 function Clear(){
     localStorage.clear(Listagem)
     localStorage.setItem('Listagem', JSON.stringify(Listagem));
     location.reload()
 }
-
+    
+/*
 function wewewe(){
     Listagem[IndexAtualCliente].pedido.length = 0
     localStorage.setItem('Listagem', JSON.stringify(Listagem));
