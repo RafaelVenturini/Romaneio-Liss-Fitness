@@ -3,7 +3,7 @@
 //abriu o site, vai mandar o classico e vai preencher a tabela lateral
 document.addEventListener('DOMContentLoaded', () => {
     console.log("Haro World!")
-    JSONando('produtos.CSV')
+    JSONando('./produtos.CSV')
     console.log('produtos:', JSONando('produtos.CSV'))
     SideFill()
     console.log('lista dos arrays atualis:', Listagem)
@@ -736,13 +736,13 @@ async function PDFzador(){
 //                                 Debug Area                                     //
 ////////////////////////////////////////////////////////////////////////////////////
 
+/*
 function Clear(){
     localStorage.clear(Listagem)
     localStorage.setItem('Listagem', JSON.stringify(Listagem));
     location.reload()
 }
     
-/*
 function wewewe(){
     Listagem[IndexAtualCliente].pedido.length = 0
     localStorage.setItem('Listagem', JSON.stringify(Listagem));
