@@ -338,6 +338,7 @@ function SelectPronto(){
 
 function criadorTR(QuantidadeAdicionada, TextoSelect){
     let i = 0
+    console.log('iii: ',i)
     const n = i + QuantidadeAdicionada
     const tabela = document.getElementById("variavel2")
     
@@ -355,8 +356,6 @@ function criadorTR(QuantidadeAdicionada, TextoSelect){
         
         i++
     }
-
-    localStorage.setItem('Listagem', JSON.stringify(Listagem));
 }
 
 
@@ -387,7 +386,7 @@ function TRProduto(NewLinha, TextoSelect, i){
     const Pecinhas = {quantidade: 1, peca: TextoSelect[i]}
     Listagem[IndexAtualCliente].pedido.push(Pecinhas)
     console.log(`Adicionado ${TextoSelect[i]} no cliente`)
-    localStorage.setItem('Listagem', JSON.stringify(Listagem));
+    localStorage.setItem('clientes', JSON.stringify(Listagem));
 
     return descricionvalue
 }
@@ -459,9 +458,8 @@ function TRDelete(NewLinha){
         const linha = apagavalue.parentNode.parentNode
         const indice = linha.rowIndex
         tabela.deleteRow(indice)
-        //Listagem[IndexAtualCliente]['pedidos'][i].splice
-        Listagem[IndexAtualCliente].pedido.length -= 1
-        localStorage.setItem('Listagem', JSON.stringify(Listagem));
+        Listagem[IndexAtualCliente]['pedido'].splice(indice-1,1)
+        localStorage.setItem('clientes', JSON.stringify(Listagem));
         Contagem()
     }
 
@@ -497,7 +495,6 @@ function RecriadorTR(){
         valorunico = TRValorUn(NewLinha)
         TRTotal(NewLinha, valorunico)
         TRDelete(NewLinha)
-        
         i++
     }
     MudancaTotal()
@@ -656,6 +653,7 @@ function MudancaQntd(){
         let QntdValue = qntd.querySelector("input").value
 
         Listagem[IndexAtualCliente].pedido[i-1].quantidade = QntdValue
+        localStorage.setItem('clientes', JSON.stringify(Listagem));
     }
 }
 
@@ -725,8 +723,13 @@ async function PDFzador(){
     window.open(pdf.output('bloburl'), '_blank');     
     
     fixa.classList.remove('printando')
-    micro.classList.remove('printando')
+    
     elemento.classList.remove('printando')
+    
+    micro.forEach(item => {
+        item.classList.remove('printando');
+    });
+
     del.forEach(item => {
         item.classList.remove('hidden');
     });
@@ -739,13 +742,14 @@ async function PDFzador(){
 /*
 function Clear(){
     localStorage.clear(Listagem)
-    localStorage.setItem('Listagem', JSON.stringify(Listagem));
-    location.reload()
+    localStorage.setItem('clientes', JSON.stringify(Listagem));
+    SideFill()
+    console.log('clientes limpos')
 }
     
 function wewewe(){
     Listagem[IndexAtualCliente].pedido.length = 0
-    localStorage.setItem('Listagem', JSON.stringify(Listagem));
+    localStorage.setItem('clientes', JSON.stringify(Listagem));
     console.log('conjuntos zerados')
 }
 
