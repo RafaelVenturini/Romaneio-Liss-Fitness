@@ -4,6 +4,7 @@
 document.addEventListener('DOMContentLoaded', () => {
     console.log("Haro World!")
     JSONando('produtos.CSV')
+    console.log('produtos:', JSONando('produtos.CSV'))
     SideFill()
     console.log('lista dos arrays atualis:', Listagem)
 
@@ -722,14 +723,13 @@ async function PDFzador(){
     };
     pdf.autoPrint();
     window.open(pdf.output('bloburl'), '_blank');     
-    /*
+    
     fixa.classList.remove('printando')
     micro.classList.remove('printando')
     elemento.classList.remove('printando')
     del.forEach(item => {
         item.classList.remove('hidden');
     });
-    */
 }
 
 ////////////////////////////////////////////////////////////////////////////////////
